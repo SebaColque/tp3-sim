@@ -53,7 +53,9 @@ thead {
 }
 
 th, td {
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
   padding: 8px;
   text-align: center;
 }
@@ -71,5 +73,28 @@ th {
   padding-bottom: 12px;
   background-color: #071565;
   color: white;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
 }
 
+.table-wrapper-A,
+.table-wrapper-B {
+  max-height: 500px; /* Altura máxima de la tabla, ajusta según tus necesidades */
+  overflow-y: auto; /* Permitir desplazamiento vertical si la tabla es demasiado larga */
+}
+
+thead th {
+  position: sticky;
+  /* top: 25px; */
+  top: 0px;
+  /* background-color: white; */
+  z-index: 1; /* Asegura que el encabezado permanezca encima del contenido de la tabla */
+}
+tbody {
+  /* Agrega un margen superior para compensar el espacio ocupado por el encabezado */
+  margin-top: 40px; /* Ajusta según la altura de tu encabezado */
+}
+
+.dia-llegada-pedido{
+  background-color: #001cb8 !important; 
+}

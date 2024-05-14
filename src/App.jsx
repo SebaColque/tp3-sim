@@ -3,20 +3,23 @@ import './App.css'
 
 function App() {
   const [formData, setFormData] = useState({
-    lotePedido: '',
-    stockInicialA: '',
-    stockInicialB: '',
-    diasEntrePedidosA: '',
-    diasEntrePedidosB: '',
-    diasASimularA: '',
-    diasASimularB: '',
-    costoMantenimientoA: '',
-    costoMantenimientoB: '',
-    costoStockOutA: '',
-    costoStockOutB: ''
+    lotePedido: 10,
+    stockInicialA: 40,
+    stockInicialB: 40,
+    diasEntrePedidosA: 7,
+    diasEntrePedidosB: 10,
+    diasASimularA: 120,
+    diasASimularB: 120,
+    costoMantenimientoA: 3,
+    costoMantenimientoB: 3,
+    costoStockOutA: 4,
+    costoStockOutB: 4
   });
 
-  const [tablaSimulacion, setTablaSimulacion] = useState([]);
+  const [mostrarTablas, setMostrarTablas] = useState(false);
+
+  const [tablaSimulacionA, setTablaSimulacionA] = useState([]);
+  const [tablaSimulacionB, setTablaSimulacionB] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,8 +28,10 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Datos del formulario:', formData);
-    generarTablaSimulacion();
+    // console.log('Datos del formulario:', formData);
+    generarTablaSimulacionA();
+    generarTablaSimulacionB();
+    setMostrarTablas(true);
   };
 
 
@@ -91,7 +96,7 @@ function App() {
     console.log(`Decenas Pedidas: ${randomDecenasPedidas}, Costo: ${costoPedido}`);
   };
 
-  const generarTablaSimulacion = () => {
+  const generarTablaSimulacionA = () => {
     const tabla = [];
     let stock = parseInt(formData.stockInicialA); // Inicializar el stock
     let diaLlegadaPedido;
@@ -99,12 +104,12 @@ function App() {
 
     for (let i = 1; i <= parseInt(formData.diasASimularA); i++) {
       const randomDemanda = Math.random();
-      const demanda = calcularDemanda(randomDemanda.toFixed(2));
+      const demanda = calcularDemanda(randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2));
 
       const pedido = i % parseInt(formData.diasEntrePedidosA) === 0;
 
       const randomDemora = Math.random();
-      const demora = calcularDemora(randomDemora.toFixed(2));
+      const demora = calcularDemora(randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2));
 
       const llegadaPedido = pedido ? i + demora : '-';
       
@@ -122,15 +127,15 @@ function App() {
       const costoTotal = costoPedido + costoMantenimiento + costoStockOut;
 
       const stockInicioDia = (i==diaLlegadaPedido) ? (stock + cantidadProductosPedidos) : stock;
-      stock = (stock - demanda + (i==llegadaPedido ? lotePedido : 0)) <= 0 
+      stock = (stock - demanda + (i==diaLlegadaPedido ? parseInt(formData.lotePedido) : 0)) <= 0 
               ? 0 
-              : (stock - demanda + (i==llegadaPedido ? lotePedido : 0));
+              : (stock - demanda + (i==diaLlegadaPedido ? parseInt(formData.lotePedido) : 0));
 
       tabla.push({
         reloj: i,
-        rndDemanda: randomDemanda.toFixed(2),
+        rndDemanda: randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2),
         demanda,
-        rndDemora: pedido ? randomDemora.toFixed(2) : '-',
+        rndDemora: pedido ? (randomDemora.toFixed(2)==1.00 ? 0.99 : randomDemora.toFixed(2)) : '-',
         demora: pedido ? demora : '-',
         pedido: pedido ? 'Sí' : 'No',
         llegadaPedido,
@@ -144,8 +149,87 @@ function App() {
       });
     }
 
-    setTablaSimulacion(tabla);
+    setTablaSimulacionA(tabla);
   };
+
+
+  const generarTablaSimulacionB = () => {
+    const tabla = [];
+    let stock = parseInt(formData.stockInicialB); // Inicializar el stock
+    let diaLlegadaPedido;
+    let cantidadProductosPedidos;
+    let acumuladorDemanda = 0;
+    let yaSePidio = false;
+
+    for (let i = 1; i <= parseInt(formData.diasASimularB); i++) {
+      const randomDemanda = Math.random();
+      const demanda = calcularDemanda(randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2));
+
+      const pedido = i % parseInt(formData.diasEntrePedidosB) === 0;
+
+      const randomDemora = Math.random();
+      const demora = calcularDemora(randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2));
+
+      const llegadaPedido = pedido ? i + demora : '-';
+      
+      // const lotePedido = pedido ? parseInt(formData.lotePedido) : 0;
+      if(!pedido){
+        if(yaSePidio){
+          acumuladorDemanda = 0;
+          yaSePidio = false;
+        }
+      }
+      if(pedido){
+        diaLlegadaPedido = llegadaPedido;
+        acumuladorDemanda += demanda
+        cantidadProductosPedidos = acumuladorDemanda;
+        yaSePidio = true;
+      } else {
+        acumuladorDemanda += demanda
+      }
+
+      const costoPedido = pedido ? calcularCostoPedido(parseInt(cantidadProductosPedidos)) : 0;
+      const costoMantenimiento = (stock-demanda) <= 0 ? 0 : (stock-demanda) * parseInt(formData.costoMantenimientoB)*10;
+      const costoStockOut = i==diaLlegadaPedido 
+                            ? (demanda > stock ? (demanda - stock - cantidadProductosPedidos) * parseInt(formData.costoStockOutB)*10 : 0)
+                            : (demanda > stock ? (demanda - stock) * parseInt(formData.costoStockOutB)*10 : 0);
+      const costoTotal = costoPedido + costoMantenimiento + costoStockOut;
+
+      const stockInicioDia = (i==diaLlegadaPedido) ? (stock + cantidadProductosPedidos) : stock;
+      
+      stock = (stock - demanda + (i==diaLlegadaPedido ? cantidadProductosPedidos : 0)) <= 0 
+              ? 0 
+              : (stock - demanda + (i==diaLlegadaPedido ? cantidadProductosPedidos : 0));
+
+      // console.log('Dia: ' + i,
+      //   'SID: '+ stockInicioDia,
+      //             'stock: ' + stock,
+      //             'DLLP:' + diaLlegadaPedido, 
+      //             'CPP: '+ cantidadProductosPedidos,
+      //             'ACD: ' + acumuladorDemanda)
+
+      tabla.push({
+        reloj: i,
+        rndDemanda: randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2),
+        demanda,
+        rndDemora: pedido ? (randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2)) : '-',
+        demora: pedido ? demora : '-',
+        pedido: pedido ? 'Sí' : 'No',
+        llegadaPedido,
+        stockInicioDia,
+        stock,
+        costoPedido,
+        costoMantenimiento,
+        costoStockOut,
+        costoTotal,
+        costoAcumulado: tabla.reduce((acc, curr) => acc + curr.costoTotal, costoTotal),
+        acumuladorDemanda
+      });
+    }
+
+    setTablaSimulacionB(tabla);
+  };
+
 
   return (
     <div>
@@ -210,49 +294,105 @@ function App() {
         <button type="submit">Enviar Formularios</button>
       </form>
 
-      <button onClick={handleCalcular}>Calcular Demanda</button>
+      {/* <button onClick={handleCalcular}>Calcular Demanda</button> */}
 
-      <h2>Tabla de Simulación</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Reloj</th>
-            <th>RND Demanda</th>
-            <th>Demanda</th>
-            <th>RND Demora</th>
-            <th>Demora</th>
-            <th>Orden/Pedido</th>
-            <th>Llegada Pedido</th>
-            <th>Stock Inicio Dia</th>
-            <th>Stock Final</th>
-            <th>KO</th>
-            <th>KM</th>
-            <th>KS</th>
-            <th>Costo Total</th>
-            <th>Costo Acumulado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tablaSimulacion.map((fila, index) => (
-            <tr key={index}>
-              <td>{fila.reloj}</td>
-              <td>{fila.rndDemanda}</td>
-              <td>{fila.demanda}</td>
-              <td>{fila.rndDemora}</td>
-              <td>{fila.demora}</td>
-              <td>{fila.pedido}</td>
-              <td>{fila.llegadaPedido}</td>
-              <td>{fila.stockInicioDia}</td>
-              <td>{fila.stock}</td>
-              <td>{fila.costoPedido}</td>
-              <td>{fila.costoMantenimiento}</td>
-              <td>{fila.costoStockOut}</td>
-              <td>{fila.costoTotal}</td>
-              <td>{fila.costoAcumulado}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {mostrarTablas &&
+      <>
+      
+        <h2>Política A - Tabla de Simulación</h2>
+        <div className="table-wrapper-A">
+          <table>
+            <thead>
+              <tr>
+                <th>Reloj</th>
+                <th>RND Demanda</th>
+                <th>Demanda</th>
+                <th>RND Demora</th>
+                <th>Demora</th>
+                <th>Orden/Pedido</th>
+                <th>Llegada Pedido</th>
+                <th>Stock Inicio Dia</th>
+                <th>Stock Final</th>
+                <th>KO</th>
+                <th>KM</th>
+                <th>KS</th>
+                <th>Costo Total</th>
+                <th>Costo Acumulado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tablaSimulacionA.map((fila, index) => (
+                <tr key={index} className={(fila.pedido=='Sí') ? 'dia-llegada-pedido' : ''}>
+                  <td>{fila.reloj}</td>
+                  <td>{fila.rndDemanda}</td>
+                  <td>{fila.demanda}</td>
+                  <td>{fila.rndDemora}</td>
+                  <td>{fila.demora}</td>
+                  <td>{fila.pedido}</td>
+                  <td>{fila.llegadaPedido}</td>
+                  <td>{fila.stockInicioDia}</td>
+                  <td>{fila.stock}</td>
+                  <td>{fila.costoPedido}</td>
+                  <td>{fila.costoMantenimiento}</td>
+                  <td>{fila.costoStockOut}</td>
+                  <td>{fila.costoTotal}</td>
+                  <td>{fila.costoAcumulado}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+
+        <h2>Política B - Tabla de Simulación</h2>
+        <div className="table-wrapper-B">
+          <table>
+            <thead>
+              <tr>
+                <th>Reloj</th>
+                <th>RND Demanda</th>
+                <th>Demanda</th>
+                <th>RND Demora</th>
+                <th>Demora</th>
+                <th>Orden/Pedido</th>
+                <th>Llegada Pedido</th>
+                <th>Stock Inicio Dia</th>
+                <th>Stock Final</th>
+                <th>KO</th>
+                <th>KM</th>
+                <th>KS</th>
+                <th>Costo Total</th>
+                <th>Costo Acumulado</th>
+                <th>Acumulado Demanda</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tablaSimulacionB.map((fila, index) => (
+                // (console.log(index, formData.diasEntrePedidosB, fila.pedido, fila.pedido=='Sí'))
+                <tr key={index} className={(fila.pedido=='Sí') ? 'dia-llegada-pedido' : ''}>
+                  <td>{fila.reloj}</td>
+                  <td>{fila.rndDemanda}</td>
+                  <td>{fila.demanda}</td>
+                  <td>{fila.rndDemora}</td>
+                  <td>{fila.demora}</td>
+                  <td>{fila.pedido}</td>
+                  <td>{fila.llegadaPedido}</td>
+                  <td>{fila.stockInicioDia}</td>
+                  <td>{fila.stock}</td>
+                  <td>{fila.costoPedido}</td>
+                  <td>{fila.costoMantenimiento}</td>
+                  <td>{fila.costoStockOut}</td>
+                  <td>{fila.costoTotal}</td>
+                  <td>{fila.costoAcumulado}</td>
+                  <td>{fila.acumuladorDemanda}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+      }
+
 
     </div>
   )
