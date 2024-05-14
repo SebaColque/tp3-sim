@@ -40,3 +40,36 @@
 .read-the-docs {
   color: #888;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+thead {
+  background-color: #071565;
+  color: white;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+tr:nth-child(even) {
+  background-color: #555555;
+}
+
+tr:hover {
+  background-color: #4844b8;
+}
+
+th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background-color: #071565;
+  color: white;
+}
+
