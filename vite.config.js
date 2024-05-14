@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: 'https://SebaColque.github.io/tp3-sim',
+  base: 'https://sebacolque.github.io/tp3-sim',
 })
