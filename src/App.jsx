@@ -120,9 +120,12 @@ function App() {
       }
 
       const costoPedido = pedido ? calcularCostoPedido(parseInt(formData.lotePedido)) : 0;
-      const costoMantenimiento = (stock-demanda) <= 0 ? 0 : (stock-demanda) * parseInt(formData.costoMantenimientoA)*10;
+      // const costoMantenimiento = (stock-demanda+cantidadProductosPedidos) <= 0 ? 0 : (stock-demanda+cantidadProductosPedidos) * parseInt(formData.costoMantenimientoA)*10;
+      const costoMantenimiento = i==diaLlegadaPedido
+                                ? (stock+cantidadProductosPedidos-demanda) <= 0 ? 0 : (stock+cantidadProductosPedidos-demanda) * parseInt(formData.costoMantenimientoA)*10
+                                : (stock-demanda) <= 0 ? 0 : (stock-demanda) * parseInt(formData.costoMantenimientoA)*10;
       const costoStockOut = i==diaLlegadaPedido 
-                            ? (demanda > stock ? (demanda - stock - cantidadProductosPedidos) * parseInt(formData.costoStockOutA)*10 : 0)
+                            ? (demanda > (stock+cantidadProductosPedidos) ? (demanda - stock + cantidadProductosPedidos) * parseInt(formData.costoStockOutA)*10 : 0)
                             : (demanda > stock ? (demanda - stock) * parseInt(formData.costoStockOutA)*10 : 0);
       const costoTotal = costoPedido + costoMantenimiento + costoStockOut;
 
@@ -189,9 +192,12 @@ function App() {
       }
 
       const costoPedido = pedido ? calcularCostoPedido(parseInt(cantidadProductosPedidos)) : 0;
-      const costoMantenimiento = (stock-demanda) <= 0 ? 0 : (stock-demanda) * parseInt(formData.costoMantenimientoB)*10;
+      const costoMantenimiento = i==diaLlegadaPedido
+                                ? (stock+cantidadProductosPedidos-demanda) <= 0 ? 0 : (stock+cantidadProductosPedidos-demanda) * parseInt(formData.costoMantenimientoB)*10
+                                : (stock-demanda) <= 0 ? 0 : (stock-demanda) * parseInt(formData.costoMantenimientoB)*10;
+                  
       const costoStockOut = i==diaLlegadaPedido 
-                            ? (demanda > stock ? (demanda - stock - cantidadProductosPedidos) * parseInt(formData.costoStockOutB)*10 : 0)
+                            ? (demanda > (stock+cantidadProductosPedidos) ? (demanda - stock + cantidadProductosPedidos) * parseInt(formData.costoStockOutB)*10 : 0)
                             : (demanda > stock ? (demanda - stock) * parseInt(formData.costoStockOutB)*10 : 0);
       const costoTotal = costoPedido + costoMantenimiento + costoStockOut;
 
@@ -233,66 +239,68 @@ function App() {
 
   return (
     <div>
-      <h1>Política A</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Lote de Pedido:
-          <input type="number" name="lotePedido" value={formData.lotePedido} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Stock Inicial:
-          <input type="number" name="stockInicialA" value={formData.stockInicialA} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Cantidad de Días entre Pedidos:
-          <input type="number" name="diasEntrePedidosA" value={formData.diasEntrePedidosA} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Cuántos Días se Quieren Simular:
-          <input type="number" name="diasASimularA" value={formData.diasASimularA} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Costo de Mantenimiento (por unidad):
-          <input type="number" name="costoMantenimientoA" value={formData.costoMantenimientoA} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Costo de Stock Out (por unidad):
-          <input type="number" name="costoStockOutA" value={formData.costoStockOutA} onChange={handleChange} />
-        </label>
+      <div>
+        <h1>Política A</h1>
+        <form onSubmit={handleSubmit}>
+          <label>
+            Lote de Pedido:
+            <input type="number" name="lotePedido" value={formData.lotePedido} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Stock Inicial:
+            <input type="number" name="stockInicialA" value={formData.stockInicialA} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Cantidad de Días entre Pedidos:
+            <input type="number" name="diasEntrePedidosA" value={formData.diasEntrePedidosA} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Cuántos Días se Quieren Simular:
+            <input type="number" name="diasASimularA" value={formData.diasASimularA} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Costo de Mantenimiento (por unidad):
+            <input type="number" name="costoMantenimientoA" value={formData.costoMantenimientoA} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Costo de Stock Out (por unidad):
+            <input type="number" name="costoStockOutA" value={formData.costoStockOutA} onChange={handleChange} />
+          </label>
 
-        <h1>Política B</h1>
-        <label>
-          Stock Inicial:
-          <input type="number" name="stockInicialB" value={formData.stockInicialB} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Cantidad de Días entre Pedidos:
-          <input type="number" name="diasEntrePedidosB" value={formData.diasEntrePedidosB} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Cuántos Días se Quieren Simular:
-          <input type="number" name="diasASimularB" value={formData.diasASimularB} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Costo de Mantenimiento (por unidad):
-          <input type="number" name="costoMantenimientoB" value={formData.costoMantenimientoB} onChange={handleChange} />
-        </label>
-        <br />
-        <label>
-          Costo de Stock Out (por unidad):
-          <input type="number" name="costoStockOutB" value={formData.costoStockOutB} onChange={handleChange} />
-        </label>
-        <br />
-        <button type="submit">Enviar Formularios</button>
-      </form>
+          <h1>Política B</h1>
+          <label>
+            Stock Inicial:
+            <input type="number" name="stockInicialB" value={formData.stockInicialB} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Cantidad de Días entre Pedidos:
+            <input type="number" name="diasEntrePedidosB" value={formData.diasEntrePedidosB} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Cuántos Días se Quieren Simular:
+            <input type="number" name="diasASimularB" value={formData.diasASimularB} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Costo de Mantenimiento (por unidad):
+            <input type="number" name="costoMantenimientoB" value={formData.costoMantenimientoB} onChange={handleChange} />
+          </label>
+          <br />
+          <label>
+            Costo de Stock Out (por unidad):
+            <input type="number" name="costoStockOutB" value={formData.costoStockOutB} onChange={handleChange} />
+          </label>
+          <br />
+          <button type="submit">Enviar Formularios</button>
+        </form>
+      </div>
 
       {/* <button onClick={handleCalcular}>Calcular Demanda</button> */}
 
@@ -304,19 +312,19 @@ function App() {
           <table>
             <thead>
               <tr>
-                <th>Reloj</th>
+                <th>Día</th>
+                <th>Stock inicio día</th>
                 <th>RND Demanda</th>
                 <th>Demanda</th>
+                <th>Pedido</th>
                 <th>RND Demora</th>
                 <th>Demora</th>
-                <th>Orden/Pedido</th>
                 <th>Llegada Pedido</th>
-                <th>Stock Inicio Dia</th>
                 <th>Stock Final</th>
                 <th>KO</th>
                 <th>KM</th>
                 <th>KS</th>
-                <th>Costo Total</th>
+                <th>Costo total del día</th>
                 <th>Costo Acumulado</th>
               </tr>
             </thead>
@@ -324,19 +332,24 @@ function App() {
               {tablaSimulacionA.map((fila, index) => (
                 <tr key={index} className={(fila.pedido=='Sí') ? 'dia-llegada-pedido' : ''}>
                   <td>{fila.reloj}</td>
+                  <td>{fila.stockInicioDia}</td>
                   <td>{fila.rndDemanda}</td>
                   <td>{fila.demanda}</td>
+                  <td>{fila.pedido}</td>
                   <td>{fila.rndDemora}</td>
                   <td>{fila.demora}</td>
-                  <td>{fila.pedido}</td>
                   <td>{fila.llegadaPedido}</td>
-                  <td>{fila.stockInicioDia}</td>
                   <td>{fila.stock}</td>
                   <td>{fila.costoPedido}</td>
                   <td>{fila.costoMantenimiento}</td>
                   <td>{fila.costoStockOut}</td>
                   <td>{fila.costoTotal}</td>
+                  {index === formData.diasASimularA-1
+                  ?
+                  <td style={{backgroundColor: "#cd0a51"}}>{fila.costoAcumulado}</td>
+                  :
                   <td>{fila.costoAcumulado}</td>
+                  }
                 </tr>
               ))}
             </tbody>
@@ -349,21 +362,21 @@ function App() {
           <table>
             <thead>
               <tr>
-                <th>Reloj</th>
+                <th>Día</th>
+                <th>Stock inicio día</th>
                 <th>RND Demanda</th>
                 <th>Demanda</th>
+                <th>Acumulador demanda</th>
+                <th>Pedido</th>
                 <th>RND Demora</th>
                 <th>Demora</th>
-                <th>Orden/Pedido</th>
                 <th>Llegada Pedido</th>
-                <th>Stock Inicio Dia</th>
                 <th>Stock Final</th>
                 <th>KO</th>
                 <th>KM</th>
                 <th>KS</th>
-                <th>Costo Total</th>
+                <th>Costo total del día</th>
                 <th>Costo Acumulado</th>
-                <th>Acumulado Demanda</th>
               </tr>
             </thead>
             <tbody>
@@ -371,20 +384,25 @@ function App() {
                 // (console.log(index, formData.diasEntrePedidosB, fila.pedido, fila.pedido=='Sí'))
                 <tr key={index} className={(fila.pedido=='Sí') ? 'dia-llegada-pedido' : ''}>
                   <td>{fila.reloj}</td>
+                  <td>{fila.stockInicioDia}</td>
                   <td>{fila.rndDemanda}</td>
                   <td>{fila.demanda}</td>
+                  <td>{fila.acumuladorDemanda}</td>
+                  <td>{fila.pedido}</td>
                   <td>{fila.rndDemora}</td>
                   <td>{fila.demora}</td>
-                  <td>{fila.pedido}</td>
                   <td>{fila.llegadaPedido}</td>
-                  <td>{fila.stockInicioDia}</td>
                   <td>{fila.stock}</td>
                   <td>{fila.costoPedido}</td>
                   <td>{fila.costoMantenimiento}</td>
                   <td>{fila.costoStockOut}</td>
                   <td>{fila.costoTotal}</td>
+                  {index === formData.diasASimularB-1
+                  ?
+                  <td style={{backgroundColor: "#cd0a51"}}>{fila.costoAcumulado}</td>
+                  :
                   <td>{fila.costoAcumulado}</td>
-                  <td>{fila.acumuladorDemanda}</td>
+                  }
                 </tr>
               ))}
             </tbody>
