@@ -109,7 +109,7 @@ function App() {
       const pedido = i % parseInt(formData.diasEntrePedidosA) === 0;
 
       const randomDemora = Math.random();
-      const demora = calcularDemora(randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2));
+      const demora = calcularDemora(randomDemora.toFixed(2)==1.00 ? 0.99 : randomDemora.toFixed(2));
 
       const llegadaPedido = pedido ? i + demora : '-';
       
@@ -171,7 +171,7 @@ function App() {
       const pedido = i % parseInt(formData.diasEntrePedidosB) === 0;
 
       const randomDemora = Math.random();
-      const demora = calcularDemora(randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2));
+      const demora = calcularDemora(randomDemora.toFixed(2)==1.00 ? 0.99 : randomDemora.toFixed(2));
 
       const llegadaPedido = pedido ? i + demora : '-';
       
@@ -218,7 +218,7 @@ function App() {
         reloj: i,
         rndDemanda: randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2),
         demanda,
-        rndDemora: pedido ? (randomDemanda.toFixed(2)==1.00 ? 0.99 : randomDemanda.toFixed(2)) : '-',
+        rndDemora: pedido ? (randomDemora.toFixed(2)==1.00 ? 0.99 : randomDemora.toFixed(2)) : '-',
         demora: pedido ? demora : '-',
         pedido: pedido ? 'Sí' : 'No',
         llegadaPedido,
