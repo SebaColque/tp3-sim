@@ -149,3 +149,17 @@ input{
   margin-left: 15px;
   width: 100px;
 }
+
+.resultado{
+  margin: 70px auto;
+  width: 400px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #580395;
+}
+
+.menor-costo{
+  background-color: #cd0a51;
+  padding: 4px;
+  border-radius: 5px;
+}

@@ -125,7 +125,7 @@ function App() {
                                 ? (stock+cantidadProductosPedidos-demanda) <= 0 ? 0 : (stock+cantidadProductosPedidos-demanda) * parseInt(formData.costoMantenimientoA)*10
                                 : (stock-demanda) <= 0 ? 0 : (stock-demanda) * parseInt(formData.costoMantenimientoA)*10;
       const costoStockOut = i==diaLlegadaPedido 
-                            ? (demanda > (stock+cantidadProductosPedidos) ? (demanda - stock + cantidadProductosPedidos) * parseInt(formData.costoStockOutA)*10 : 0)
+                            ? (demanda > (stock+cantidadProductosPedidos) ? (demanda - stock - cantidadProductosPedidos) * parseInt(formData.costoStockOutA)*10 : 0)
                             : (demanda > stock ? (demanda - stock) * parseInt(formData.costoStockOutA)*10 : 0);
       const costoTotal = costoPedido + costoMantenimiento + costoStockOut;
 
@@ -197,7 +197,7 @@ function App() {
                                 : (stock-demanda) <= 0 ? 0 : (stock-demanda) * parseInt(formData.costoMantenimientoB)*10;
                   
       const costoStockOut = i==diaLlegadaPedido 
-                            ? (demanda > (stock+cantidadProductosPedidos) ? (demanda - stock + cantidadProductosPedidos) * parseInt(formData.costoStockOutB)*10 : 0)
+                            ? (demanda > (stock+cantidadProductosPedidos) ? (demanda - stock - cantidadProductosPedidos) * parseInt(formData.costoStockOutB)*10 : 0)
                             : (demanda > stock ? (demanda - stock) * parseInt(formData.costoStockOutB)*10 : 0);
       const costoTotal = costoPedido + costoMantenimiento + costoStockOut;
 
@@ -298,7 +298,7 @@ function App() {
             <input type="number" name="costoStockOutB" value={formData.costoStockOutB} onChange={handleChange} />
           </label>
           <br />
-          <button type="submit">Enviar Formularios</button>
+          <button type="submit">Simular</button>
         </form>
       </div>
 
@@ -407,7 +407,20 @@ function App() {
               ))}
             </tbody>
           </table>
+
+          <br />
+
         </div>
+
+          <div className='resultado'>
+            Costo acumulado en la Política A: <b className={(tablaSimulacionA[formData.diasASimularA-1].costoAcumulado < tablaSimulacionB[formData.diasASimularB-1].costoAcumulado) ? 'menor-costo' : ''}>$ {tablaSimulacionA[formData.diasASimularA-1].costoAcumulado}</b>
+            <br />
+            {tablaSimulacionA[formData.diasASimularA-1].costoAcumulado > tablaSimulacionB[formData.diasASimularB-1].costoAcumulado
+            ? ">"
+            : "<"}
+            <br />
+            Costo acumulado en la Política B: <b className={(tablaSimulacionA[formData.diasASimularA-1].costoAcumulado > tablaSimulacionB[formData.diasASimularB-1].costoAcumulado) ? 'menor-costo' : ''}>$ {tablaSimulacionB[formData.diasASimularB-1].costoAcumulado}</b>
+          </div>
       </>
       }
 
